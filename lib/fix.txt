@@ -1,0 +1,5 @@
+строка 2151
+было
+for (var i = f.length; i--;) f[i].call(this, time);
+стало
+for (var i = f.length; i--;) if (f[i]) f[i].call(this, time);

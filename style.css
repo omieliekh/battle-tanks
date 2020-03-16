@@ -1,0 +1,1 @@
+.libcanvas-layers-container {	border:0px solid gray;	margin: 0 auto;	background-color: black;}#loading {	left:0;	top:0;	right:0;	bottom:0;	background: url(images/loading.png) no-repeat scroll center center white;    opacity: 0.5;    position: absolute;    z-index: 1000;}
