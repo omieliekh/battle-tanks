@@ -1,15 +1,15 @@
 Tanks.Unit = atom.Class({
 	Extends: Tanks.MobileObject,
-	
+
 	zIndex : 0,
 	objType : 'tank',
-	crashMetal : false,  // ����������� ���� � ����� ��� ���
-	health : 2,  // ������� ��������
-	maxBulletLimit : 2, // ������������ ����� ��������
-	bulletLimit : 2, // ����� ��������
-	rechargeTime : 400, // �������� ����������� � ������������
-	bulletReady : true, // ���� �� ����� ��������, ���� �� ������ �����������
-	
+	crashMetal : false,
+	health : 2,
+	maxBulletLimit : 2,
+	bulletLimit : 2,
+	rechargeTime : 400,
+	bulletReady : true,
+
 	/**
 	*	options:{
 	*		spriteName,
@@ -22,7 +22,7 @@ Tanks.Unit = atom.Class({
 	*	}
 	*/
 	initUnitVars : function(libcanvas, options){
-		this.lc = libcanvas.addElement( this );	
+		this.lc = libcanvas.addElement( this );
 		this.spriteName = options.spriteName;
 		this.img = this.lc.getImage(this.spriteName);
 		this.sprite = this.img.sprite(0, 0, glob.ts, glob.ts);
@@ -37,11 +37,11 @@ Tanks.Unit = atom.Class({
 		this.bulletSpeedFactor = (options.bulletSpeedFactor > 1)?options.bulletSpeedFactor:1; //�� ����� ���� ������ �������� �����
 		this.side = options.side; // �� ���� �� �������???  >:-[
 	},
-	
+
 	initialize: function (libcanvas, options) {
 		var self = this;
 		this.initUnitVars(libcanvas, options);
-		
+
 		self.lcSet = function () {
 			self.ev = function (time) {
 				this.speed = (glob.bs*this.speedFactor)*time/1000;
@@ -55,7 +55,7 @@ Tanks.Unit = atom.Class({
 				}else if (this.lc.getKey(this.key.r)) {
 					this.right();
 				}
-				
+
 				if (this.lc.getKey('c') && this.lc.getKey('m')) { // ��� - ������ ������� c+m
 					this.crashMetal = true;
 					this.maxBulletLimit = 10;
@@ -64,7 +64,7 @@ Tanks.Unit = atom.Class({
 					this.speedFactor = 10;
 					this.bulletSpeedFactor = 5;
 				}
-				
+
 				if ( !this.moving && (this.lc.getKey(this.key.u) ||	this.lc.getKey(this.key.d) || this.lc.getKey(this.key.r) ||	this.lc.getKey(this.key.l) )
 				) { // ����� ��������
 					this.moving = true;
@@ -77,59 +77,56 @@ Tanks.Unit = atom.Class({
 				}
 
 			};
-			
+
 			self.ev_bind = self.ev.bind(this);
-			
+
 			this.libcanvas.addFunc(self.ev_bind);
 		};
-		
+
 		this.addEvent('libcanvasSet', self.lcSet);
-		
+
 		this.id = glob.ids++;
 		globObj[this.id] = this;
 		this.addToGridArr();
 	},
-	
+
 	minusHealth : function(){
 		this.health--;
-		
+
 		if (this.health <= 0) {
 			this.boom();
 
-			if (this.side == 'human') {
+			if (this.side === 'human') {
 				setTimeout( function(){ alert('Your tank was been killed.\nGAME OVER'); }, 300 );
 				this.lc.stop();
 			}
 		}
 	},
-	
+
 	boom : function () {
 		var self = this;
 		this.libcanvas.rmFunc(self.ev_bind).removeEvent('libcanvasSet',self.lcSet);
 		this.rmFromGlob();
-		
+
 		this.libcanvas.addElement(
 			new Tanks.Explosion( self.libcanvas.layer('explode'), this.shape.center.clone() )
 		);
 	},
-	
+
 	fire : function(){
 		var self = this;
-		
+
 		if (this.bulletLimit > 0 && this.bulletReady) {
 			this.bulletLimit--;
 
 			this.bulletReady = false;
 			setTimeout(function(){self.bulletReady = true;}, this.rechargeTime);
-			
-			// ������� �������� �������� ����: (����.����� + �����.��������)
+
 			this.bulletSF = this.speedFactor + this.bulletSpeedFactor;
 			if (this.bulletSF < 5) {
 				this.bulletSF = 5;
 			}
-			
-			/* �������� ���� */
-			
+
 			new Tanks.Bullet(
 				this.libcanvas,
 				{
@@ -150,9 +147,9 @@ Tanks.Unit = atom.Class({
 			/*===============*/
 		}
 	},
-	
+
 	up : function(){
-		if (0 == this.dirn.x && -1 == this.dirn.y) {
+		if (0 === this.dirn.x && -1 === this.dirn.y) {
 			var res = this.move({x:0,y:-this.speed});
 			return res;
 		} else {
@@ -161,40 +158,40 @@ Tanks.Unit = atom.Class({
 			return true;
 		}
 	},
-	
+
 	down : function(){
-		if (0 == this.dirn.x && 1 == this.dirn.y) {
+		if (0 === this.dirn.x && 1 === this.dirn.y) {
 			var res = this.move({x:0,y:this.speed});
 			return res;
 		} else {
-			this.dirn = {x:0,y:1};					
+			this.dirn = {x:0,y:1};
 			this.sprite = this.img.sprite(2*glob.ts,0,glob.ts,glob.ts);
 			return true;
 		}
 	},
-	
+
 	left : function(){
-		if (-1 == this.dirn.x && 0 == this.dirn.y) {
+		if (-1 === this.dirn.x && 0 === this.dirn.y) {
 			var res = this.move({x:-this.speed,y:0});
 			return res;
 		} else {
-			this.dirn = {x:-1,y:0};					
+			this.dirn = {x:-1,y:0};
 			this.sprite = this.img.sprite(glob.ts,0,glob.ts,glob.ts);
 			return true;
 		}
 	},
-	
+
 	right : function(){
-		if (1 == this.dirn.x && 0 == this.dirn.y) {
+		if (1 === this.dirn.x && 0 === this.dirn.y) {
 			var res = this.move({x:this.speed,y:0});
 			return res;
 		} else {
 			this.dirn = {x:1,y:0};
 			this.sprite = this.img.sprite(3*glob.ts,0,glob.ts,glob.ts);
 			return true;
-		}	
+		}
 	}
-	
+
 });
 
 
